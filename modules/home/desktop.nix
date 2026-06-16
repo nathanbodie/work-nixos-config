@@ -586,7 +586,7 @@
     };
   };
 
-  xdg.configFile."ghostty/themes/vague.conf".text = ''
+  xdg.configFile."ghostty/themes/vague".text = ''
     background = #141415
     foreground = #cdcdcd
 

@@ -41,6 +41,7 @@
     in {
       nixosConfigurations = {
         TSEP45550075 = mkHost "TSEP45550075";
+        home-pc      = mkHost "home-pc";
       };
     };
 }
