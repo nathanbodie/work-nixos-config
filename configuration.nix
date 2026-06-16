@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   imports =
@@ -11,13 +11,22 @@
     ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  # boot.loader.systemd-boot.enable = true;
+  boot.loader.grub = {
+    enable = true;
+    device = "nodev";       # for EFI systems
+    efiSupport = true;
+    useOSProber = true;     # detects other OSes (Windows, etc.) for dual-boot
+    default = "saved";      # remember last booted OS
+  };
+
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.efiSysMountPoint = "/boot";
 
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  networking.hostName = "TSEP45550075"; # Define your hostname.
+  networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -51,11 +60,12 @@
     variant = "";
   };
   
-  services.displayManager.sddm = {
+  hardware.bluetooth = {
     enable = true;
-    wayland.enable = true;
+    powerOnBoot = true;  # optional but useful
   };
 
+  # If you want the blueman applet for a system tray UI:
   services.blueman.enable = true;
 
   security.polkit.enable = true;  # required — enable this if not already present
@@ -70,16 +80,24 @@
     };
   };
 
-  programs.silentSDDM = {
+  services.xserver.enable = true;
+  services.displayManager.sddm = {
     enable = true;
-    theme = "default";
+    wayland.enable = false;
+    package = pkgs.kdePackages.sddm;
+    theme = "";
   };
 
+  # programs.silentSDDM = {
+  #   enable = true;
+  #   theme = "default";
+  # };
+  
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nate = {
     isNormalUser = true;
     description = "nate";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "uinput" ]; # added uinput for sunshine
     packages = with pkgs; [];
   };
 
@@ -119,17 +137,83 @@
     virt-viewer
     stow
     btop
-    rose-pine-cursor
     obsidian
     pavucontrol
     dunst
     libnotify
     udiskie
-    bluez
     pandoc
     zathura
     imv
+    inputs.rose-pine-hyprcursor.packages.${pkgs.system}.default
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    equibop
+    heroic
+    mangohud
+    goverlay
+    gamescope
+    joystickwake
+    lact
+    wl-clipboard
   ];
+
+  environment.etc."share/applications/steam.desktop" = {
+    text = ''
+      [Desktop Entry]
+      Name=Steam
+      Comment=Application for managing and playing games on Steam
+      Exec=steam %U
+      Icon=steam
+      Terminal=false
+      Type=Application
+      Categories=Network;FileTransfer;Game;
+      MimeType=x-scheme-handler/steam;x-scheme-handler/steamlink;
+      PrefersNonDefaultGPU=false
+      X-KDE-RunOnDiscreteGpu=false
+
+      [Desktop Action Store]
+      Name=Steam Store
+      Exec=steam steam://store
+
+      [Desktop Action Community]
+      Name=Steam Community
+      Exec=steam steam://url/SteamIDControlPage
+    '';
+  };
+
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+  };
+
+  programs.gamemode.enable = true; 
+
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      rocmPackages.clr
+    ];
+  };
+
+  services.sunshine = {
+    enable = true;
+    autoStart = true;
+    capSysAdmin = true; # only needed for Wayland -- omit this when using with Xorg
+    openFirewall = true;
+  };
+  hardware.uinput.enable = true;
+
+  virtualisation.waydroid.enable = true;
+  # Newer kernel versions may need
+  virtualisation.waydroid.package = pkgs.waydroid-nftables;
+
+  environment.sessionVariables = {
+    AMD_VULKAN_ICD = "RADV";
+    RADV_PERFTEST = "gpl";       # Faster pipeline compilation
+  };
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
