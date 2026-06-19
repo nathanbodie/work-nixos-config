@@ -2,6 +2,7 @@
 
   # ── Hyprland ─────────────────────────────────────────────────────────────────
 
+  /*
   wayland.windowManager.hyprland = {
     enable = true;
     package = null;
@@ -189,6 +190,7 @@
       bind = [ ", escape, submap, reset" ];
     };
   };
+  */
 
   # ── Hyprpaper ────────────────────────────────────────────────────────────────
 

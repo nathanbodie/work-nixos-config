@@ -12,7 +12,6 @@
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.hyprlang.follows = "hyprland/hyprlang";
     };
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
@@ -21,7 +20,7 @@
     noctalia = {
       url = "github:noctalia-dev/noctalia/legacy-v4";
       inputs.nixpkgs.follows = "nixpkgs";
-    }
+    };
   };
 
   outputs = { nixpkgs, ... } @ inputs:
