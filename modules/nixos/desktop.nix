@@ -27,6 +27,7 @@
 
   programs.hyprland = {
     enable = true;
+    withUWSM = true;
     package = pkgs.hyprland;
     portalPackage = pkgs.xdg-desktop-portal-hyprland;
   };
@@ -49,7 +50,6 @@
   environment.systemPackages = with pkgs; [
     # terminals, browsers, comms → managed by HM (programs.ghostty, etc.)
     hyprcursor
-    hyprlock
     hyprshot
     firefox
     microsoft-edge
@@ -67,6 +67,7 @@
     zathura
     imv
     equibop
+    fastfetch
     inputs.rose-pine-hyprcursor.packages.${pkgs.system}.default
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];

@@ -71,5 +71,6 @@
     wl-clipboard
     pandoc
     lazygit
+    claude-code
   ];
 }

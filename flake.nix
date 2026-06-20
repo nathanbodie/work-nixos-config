@@ -34,6 +34,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              backupFileExtension = "bak";
               extraSpecialArgs = { inherit inputs; };
               users.nate = import ./home/nate/${hostname}.nix;
             };
