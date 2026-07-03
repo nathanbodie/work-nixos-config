@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, osConfig, ... }: {
   programs.zsh = {
     enable = true;
     oh-my-zsh = {
@@ -10,11 +10,9 @@
       ls        = "ls -lacgp";
       vim       = "nvim";
       gst       = "git status";
-      lg        = "lazygit";
       pn        = "pnpm";
       neofetch  = "fastfetch";
-      tm        = "task-master";
-      taskmaster = "task-master";
+      nrs       = "nixos-rebuild switch --flake .#${osConfig.networking.hostName}";
     };
     sessionVariables = {
       MANPAGER = "nvim +Man!";

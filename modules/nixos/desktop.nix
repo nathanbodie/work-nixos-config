@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }: {
+{ pkgs, inputs, config, ... }: {
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
@@ -68,7 +68,19 @@
     imv
     equibop
     fastfetch
+    spotify
     inputs.rose-pine-hyprcursor.packages.${pkgs.system}.default
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    gimp
+    inputs.helium.packages.${system}.default
+    fzf
+    ripgrep
   ];
+
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 4d --keep 3";
+    flake = "${config.users.users.nate.home}/.config/nixos";
+  };
 }

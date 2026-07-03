@@ -30,10 +30,10 @@
         telemetryEnabled       = false;
       };
       idle = {
-        enabled          = true;
-        screenOffTimeout = 300;
-        lockTimeout      = 360;
-        suspendTimeout   = 1800;
+        enabled          = false;
+        screenOffTimeout = 0;
+        lockTimeout      = 0;
+        suspendTimeout   = 0;
       };
     };
   };
@@ -87,25 +87,6 @@
     window-padding-y = 8
     window-theme = dark
   '';
-
-  # ── Kitty (secondary terminal) ───────────────────────────────────────────────
-
-  programs.kitty = {
-    enable = true;
-    font = {
-      name = "Terminess Nerd Font Mono";
-      size = 25;
-    };
-    settings = {
-      window_padding_width  = 16;
-      remember_window_size  = "no";
-      initial_window_width  = "0c";
-      initial_window_height = "0c";
-    };
-    extraConfig = ''
-      include themes/vague2.conf
-    '';
-  };
 
   # ── Automount daemon ─────────────────────────────────────────────────────────
 

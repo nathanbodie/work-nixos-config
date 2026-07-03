@@ -41,13 +41,25 @@
   virtualisation.waydroid.enable = true;
   virtualisation.waydroid.package = pkgs.waydroid-nftables;
 
+  systemd.services.joystickwake = {
+    description = "Prevent sleep while a joystick is in use";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.joystickwake}/bin/joystickwake";
+      Restart = "on-failure";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     equibop
-    heroic
+    lutris
     mangohud
     goverlay
     gamescope
     joystickwake
     lact
+    vibrantlinux
+    bolt-launcher
+    prismlauncher
   ];
 }
