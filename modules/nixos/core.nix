@@ -26,7 +26,7 @@
   users.users.nate = {
     isNormalUser = true;
     description = "nate";
-    extraGroups = [ "networkmanager" "wheel" "uinput" ];
+    extraGroups = [ "networkmanager" "wheel" "uinput" "input" ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
@@ -61,5 +61,6 @@
     neovim
     wget
     git
+    gh
   ];
 }

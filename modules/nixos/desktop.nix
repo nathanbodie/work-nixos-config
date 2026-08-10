@@ -25,6 +25,8 @@
     theme = "";
   };
 
+  services.gvfs.enable = true; # required for nautilus network tab
+
   programs.hyprland = {
     enable = true;
     withUWSM = true;
@@ -54,7 +56,7 @@
     firefox
     microsoft-edge
     teams-for-linux
-    kdePackages.dolphin
+    nautilus
     yazi
     qemu
     quickemu
@@ -75,6 +77,7 @@
     inputs.helium.packages.${system}.default
     fzf
     ripgrep
+    slack
   ];
 
   programs.nh = {

@@ -25,6 +25,7 @@
       url = "github:schembriaiden/helium-browser-nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
   };
 
   outputs = { nixpkgs, ... } @ inputs:
@@ -34,6 +35,7 @@
         modules = [
           ./hosts/${hostname}/default.nix
           inputs.home-manager.nixosModules.home-manager
+          inputs.nix-flatpak.nixosModules.nix-flatpak
           {
             home-manager = {
               useGlobalPkgs = true;
