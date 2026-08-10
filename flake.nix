@@ -5,6 +5,14 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,8 +57,26 @@
       };
     in {
       nixosConfigurations = {
-        TSEP45550075 = mkHost "TSEP45550075";
-        home-pc      = mkHost "home-pc";
+        home-pc = mkHost "home-pc";
+
+        vps = nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./hosts/vps/default.nix
+            inputs.home-manager.nixosModules.home-manager
+            inputs.agenix.nixosModules.default
+            inputs.disko.nixosModules.disko
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "bak";
+                extraSpecialArgs = { inherit inputs; };
+                users.nate = import ./home/nate/vps.nix;
+              };
+            }
+          ];
+        };
       };
     };
 }
