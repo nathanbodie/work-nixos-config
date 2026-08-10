@@ -9,6 +9,15 @@
     content = {
       type = "gpt";
       partitions = {
+        # Hetzner Cloud VMs may be BIOS- or UEFI-booted depending on the
+        # instance. This 1M BIOS boot partition lets GRUB install its i386-pc
+        # stage to the gap, so the same image boots either way. Without it a
+        # BIOS-booting VM installs fine and then fails to boot.
+        bios = {
+          size = "1M";
+          type = "EF02";
+          priority = 1;
+        };
         boot = {
           size = "512M";
           type = "EF00";

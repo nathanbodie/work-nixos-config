@@ -9,11 +9,15 @@
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # EFI boot — efiInstallAsRemovable avoids needing to write EFI vars,
-  # which is safer on most VPS providers.
+  # Installs GRUB for both firmware paths, since Hetzner Cloud instances vary in
+  # whether they boot BIOS or UEFI: x86_64-efi because efiSupport is set, and
+  # i386-pc because the EF02 partition in disko.nix makes disko populate
+  # `boot.loader.grub.devices` with /dev/sda on our behalf — do not set it here
+  # too, that produces a duplicate entry.
+  # efiInstallAsRemovable avoids needing to write EFI vars, which is safer on
+  # most VPS providers.
   boot.loader.grub = {
     enable = true;
-    device = "nodev";
     efiSupport = true;
     efiInstallAsRemovable = true;
   };
@@ -100,7 +104,10 @@
   ];
 
   # Swap file instead of partition so disk can be resized without repartitioning.
-  swapDevices = [{ device = "/var/swapfile"; size = 2048; }];
+  # Sized generously: several concurrent Claude Code instances spiking at once
+  # should page out rather than trip the OOM killer and take down an unrelated
+  # session.
+  swapDevices = [{ device = "/var/swapfile"; size = 16384; }];
 
   system.stateVersion = "25.11";
 }
