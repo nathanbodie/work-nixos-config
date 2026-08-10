@@ -34,8 +34,13 @@
     # Keep user systemd instance alive without an active login so the
     # tmux-work service (defined in home/nate/vps.nix) survives reboots.
     linger = true;
+    # Every machine that needs to reach this box must be listed here. There is
+    # no password on this account and root login is disabled, so the Hetzner
+    # console is not a fallback — an unlisted key means no way in at all.
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID1w4OTAaFlD4l9GSZUbYUdSVFSW0CYd3o5r00Ra3UBT nathan@bodie.dev"
+      # work macbook — the machine that drives dev-vps/deploy.sh
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK1ZEAriERFWXRSCHmk3fdI9O28GQ5pkPvcX/dTzx8kC nathan@book"
     ];
   };
 
@@ -43,10 +48,17 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Key-based SSH only; no password auth, no root login.
-  # Port 22 is NOT opened on the public interface — SSH is only reachable
-  # over Tailscale (trustedInterfaces covers tailscale0).
+  #
+  # openFirewall defaults to TRUE in the openssh module — enabling the service
+  # opens TCP 22 on every interface by itself, regardless of what the firewall
+  # block below says. Left on deliberately as an escape hatch while Tailscale
+  # enrollment is still unproven: with no account password and root login
+  # disabled, the Hetzner console cannot log in, so if tailscaled fails to come
+  # up and this is false, the machine is unrecoverable and has to be reinstalled.
+  # Flip to false once the box is reliably on the tailnet.
   services.openssh = {
     enable = true;
+    openFirewall = true;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
@@ -55,8 +67,9 @@
 
   services.tailscale.enable = true;
 
-  # Only the Tailscale WireGuard port is open on the public interface.
-  # Everything else (SSH, mosh) is reachable only over tailscale0.
+  # Opens the Tailscale WireGuard port. Note that TCP 22 is ALSO open publicly
+  # via services.openssh.openFirewall above — mosh and everything else is
+  # tailscale0-only.
   networking.firewall = {
     enable = true;
     trustedInterfaces = [ "tailscale0" ];
