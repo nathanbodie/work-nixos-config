@@ -78,14 +78,17 @@
   services.tailscale = {
     enable = true;
     authKeyFile = config.age.secrets.tailscale-authkey.path;
-    # --accept-dns defaults to on, which repoints /etc/resolv.conf at
-    # 100.100.100.100 alone. This tailnet has no global nameserver configured,
-    # so public DNS stops resolving entirely: raw IPs still work (SSH stays up)
-    # but every flake fetch fails with "Could not resolve host: github.com",
-    # which means the box cannot rebuild itself. Keep Hetzner's resolvers.
-    # Note this only takes effect at `tailscale up` on a fresh enrollment; on an
-    # already-enrolled machine run `sudo tailscale set --accept-dns=false`.
-    extraUpFlags = [ "--accept-dns=false" ];
+    # --accept-dns stays at its default (on), so /etc/resolv.conf points at
+    # 100.100.100.100 and the box gets MagicDNS — other tailnet machines resolve
+    # by name from here.
+    #
+    # This REQUIRES a global nameserver on the tailnet (Cloudflare is configured
+    # in the admin console's DNS page). Without one, 100.100.100.100 answers only
+    # MagicDNS names and all public resolution dies: raw IPs still work so SSH
+    # stays up, but every flake fetch fails with "Could not resolve host:
+    # github.com" and the machine can no longer rebuild itself. If that global
+    # nameserver is ever removed, run `sudo tailscale set --accept-dns=false`
+    # here and add it back as extraUpFlags.
   };
 
   # Only the Tailscale WireGuard port is open on the public interface.
