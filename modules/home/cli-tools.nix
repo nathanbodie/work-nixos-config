@@ -24,6 +24,15 @@
     enableZshIntegration = true;
   };
 
+  # direnv + nix-direnv: auto-load a repo's flake devShell on cd.
+  # enableZshIntegration adds the shell hook (the managed ~/.zshrc is the only
+  # place it can live); nix-direnv caches the shell so re-entry is instant.
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+  };
+
   programs.tmux = {
     enable = true;
     prefix = "C-a";
