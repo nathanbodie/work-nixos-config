@@ -82,14 +82,19 @@
     # 100.100.100.100 and the box gets MagicDNS — other tailnet machines resolve
     # by name from here.
     #
-    # This REQUIRES a global nameserver on the tailnet (Cloudflare is configured
-    # in the admin console's DNS page). Without one, 100.100.100.100 answers only
-    # MagicDNS names and all public resolution dies: raw IPs still work so SSH
-    # stays up, but every flake fetch fails with "Could not resolve host:
-    # github.com" and the machine can no longer rebuild itself. If that global
-    # nameserver is ever removed, run `sudo tailscale set --accept-dns=false`
-    # here and add it back as extraUpFlags.
+    # `tailscale dns status` on this host reports "no resolvers configured", so
+    # public lookups fall through to the system default rather than to a
+    # tailnet-wide nameserver. networking.nameservers below pins that fallback:
+    # without it, tailscaled captures an empty system config during early boot
+    # and every public name fails to resolve until tailscaled is restarted.
+    # Symptom is nasty because raw IPs keep working — SSH stays up while every
+    # flake fetch dies with "Could not resolve host: github.com".
   };
+
+  # Explicit resolvers so the base resolvconf config is never empty, regardless
+  # of DHCP timing or what the tailnet pushes. This is what tailscaled proxies
+  # public queries to; see the services.tailscale comment above.
+  networking.nameservers = [ "1.1.1.1" "1.0.0.1" ];
 
   # Only the Tailscale WireGuard port is open on the public interface.
   # Everything else (SSH, mosh) is reachable only over tailscale0.
