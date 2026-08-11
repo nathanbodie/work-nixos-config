@@ -119,6 +119,12 @@
   security.sudo.wheelNeedsPassword = false;
 
   environment.systemPackages = with pkgs; [
+    # SSH forwards TERM from the client, and Ghostty sends TERM=xterm-ghostty.
+    # Without this entry ncurses cannot drive the terminal at all: `clear` dies
+    # with "unknown terminal type" and backspace prints a space instead of
+    # erasing, because the line editor has no cursor movement capabilities.
+    # This is the terminfo-only output, so the server does not build Ghostty.
+    ghostty.terminfo
     git
     gh
     neovim
