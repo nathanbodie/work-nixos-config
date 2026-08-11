@@ -51,14 +51,17 @@
   #
   # openFirewall defaults to TRUE in the openssh module — enabling the service
   # opens TCP 22 on every interface by itself, regardless of what the firewall
-  # block below says. Left on deliberately as an escape hatch while Tailscale
-  # enrollment is still unproven: with no account password and root login
-  # disabled, the Hetzner console cannot log in, so if tailscaled fails to come
-  # up and this is false, the machine is unrecoverable and has to be reinstalled.
-  # Flip to false once the box is reliably on the tailnet.
+  # block below says. Explicitly false: SSH is reachable only over tailscale0,
+  # which trustedInterfaces covers.
+  #
+  # This is a one-way door. There is no password on the nate account and root
+  # login is disabled, so the Hetzner console cannot log in — if tailscaled ever
+  # fails to come up, the only way back in is rescue mode plus a reinstall
+  # (dev-vps/deploy.sh, ~10 minutes). Set this back to true before touching
+  # anything that could break Tailscale enrollment.
   services.openssh = {
     enable = true;
-    openFirewall = true;
+    openFirewall = false;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
@@ -77,9 +80,8 @@
     authKeyFile = config.age.secrets.tailscale-authkey.path;
   };
 
-  # Opens the Tailscale WireGuard port. Note that TCP 22 is ALSO open publicly
-  # via services.openssh.openFirewall above — mosh and everything else is
-  # tailscale0-only.
+  # Only the Tailscale WireGuard port is open on the public interface.
+  # Everything else (SSH, mosh) is reachable only over tailscale0.
   networking.firewall = {
     enable = true;
     trustedInterfaces = [ "tailscale0" ];
