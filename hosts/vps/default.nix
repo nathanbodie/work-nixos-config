@@ -65,7 +65,17 @@
     };
   };
 
-  services.tailscale.enable = true;
+  # authKeyFile makes the module generate its own tailscaled-autoconnect unit,
+  # which polls until the backend leaves NoState and then runs `tailscale up`
+  # only when it reports NeedsLogin/NeedsMachineAuth. That is the correct guard.
+  # A hand-rolled unit keyed on ConditionPathExists=!/var/lib/tailscale/
+  # tailscaled.state does NOT work: tailscaled writes that state file the moment
+  # it starts, logged in or not, so the auth step gets skipped on the very first
+  # boot and the machine silently never joins the tailnet.
+  services.tailscale = {
+    enable = true;
+    authKeyFile = config.age.secrets.tailscale-authkey.path;
+  };
 
   # Opens the Tailscale WireGuard port. Note that TCP 22 is ALSO open publicly
   # via services.openssh.openFirewall above — mosh and everything else is
@@ -78,26 +88,17 @@
     checkReversePath = "loose";
   };
 
+  # Decrypted to /run/agenix/tailscale-authkey (tmpfs, root-only) during
+  # activation, which happens before multi-user.target, so tailscaled-autoconnect
+  # finds it.
   age.secrets.tailscale-authkey.file = ../../secrets/tailscale-authkey.age;
 
-  # Enrolls the machine in Tailscale on first boot using the agenix secret.
-  # ConditionPathExists skips the service on subsequent reboots — tailscaled
-  # reconnects automatically using its saved state file.
-  systemd.services.tailscale-auth = {
-    description = "Tailscale one-shot auth";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "tailscaled.service" "network-online.target" "agenix.service" ];
-    wants = [ "network-online.target" "agenix.service" ];
-    unitConfig.ConditionPathExists = "!/var/lib/tailscale/tailscaled.state";
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-    script = ''
-      ${pkgs.tailscale}/bin/tailscale up \
-        --authkey="$(cat ${config.age.secrets.tailscale-authkey.path})"
-    '';
-  };
+  # nate has no password — the account exists only for key-based SSH — so the
+  # default wheelNeedsPassword makes sudo unusable, and with it nixos-rebuild.
+  # Key-only login plus PasswordAuthentication = false means whoever can log in
+  # can already act as root on this box; requiring a password nobody has just
+  # bricks administration.
+  security.sudo.wheelNeedsPassword = false;
 
   environment.systemPackages = with pkgs; [
     git
