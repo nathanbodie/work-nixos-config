@@ -30,11 +30,6 @@ let
       '';
   };
 
-  bedrockOnLinuxVersion = "2.1.1";
-  bedrockOnLinuxBundle = pkgs.fetchurl {
-    url = "https://github.com/Wyze3306/BedrockOnLinux/releases/download/v${bedrockOnLinuxVersion}/BedrockOnLinux-${bedrockOnLinuxVersion}-x86_64.flatpak";
-    sha256 = "sha256-PcPH/Goc4070A+Fm+SY30DxhVEyr6QEuupWT/aLGNXg=";
-  };
 in
 {
   programs.steam = {
@@ -73,24 +68,7 @@ in
   };
   services.flatpak = {
     enable = true;
-    packages = [ "app.twintaillauncher.ttl" ]; # unchanged — this one IS on Flathub
-  };
-
-  # BedrockOnLinux ships only as a standalone bundle (not a Flathub ref),
-  # so it can't live in `packages` above — install it as its own unit.
-  systemd.services.flatpak-install-bedrockonlinux = {
-    description = "Install BedrockOnLinux flatpak bundle";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    path = [ pkgs.flatpak pkgs.gawk ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      installed=$(flatpak info --system io.github.wyze3306.BedrockOnLinux 2>/dev/null | awk '/^Version/{print $2}')
-      if [ "$installed" != "${bedrockOnLinuxVersion}" ]; then
-        flatpak install --system --noninteractive -y ${bedrockOnLinuxBundle}
-      fi
-    '';
+    packages = [ "app.twintaillauncher.ttl" ];
   };
 
   virtualisation.waydroid.enable = true;
