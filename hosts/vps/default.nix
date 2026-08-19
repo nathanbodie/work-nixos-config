@@ -136,6 +136,7 @@
     ripgrep
     fd
     jq
+    unzip
     # Claude Code requires a recent Node; the claude-code package in nixpkgs
     # bundles its own, but nodejs is handy for npm-installed tools too.
     nodejs_22
