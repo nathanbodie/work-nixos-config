@@ -1,4 +1,6 @@
 { pkgs, osConfig, ... }: {
+  imports = [ ./helix.nix ];
+
   programs.zsh = {
     enable = true;
     oh-my-zsh = {
@@ -15,6 +17,7 @@
       nrs       = "nixos-rebuild switch --flake .#${osConfig.networking.hostName}";
     };
     sessionVariables = {
+      EDITOR = "hx";
       MANPAGER = "nvim +Man!";
     };
   };
