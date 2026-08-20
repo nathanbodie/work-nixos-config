@@ -26,7 +26,7 @@
   users.users.nate = {
     isNormalUser = true;
     description = "nate";
-    extraGroups = [ "networkmanager" "wheel" "uinput" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "uinput" "input" "docker" ];
     shell = pkgs.zsh;
     packages = with pkgs; [];
   };
@@ -43,6 +43,10 @@
 
   services.openssh.enable = true;
   services.tailscale.enable = true;
+
+  # Container runtime for local dev (services, DBs, devcontainers). `nate` is in
+  # the `docker` group above so the CLI works without sudo.
+  virtualisation.docker.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -63,5 +67,12 @@
     wget
     git
     gh
+    # CLI basics / dev plumbing
+    curl
+    unzip
+    jq
+    fd
+    bat
+    tree
   ];
 }

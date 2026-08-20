@@ -56,6 +56,13 @@
         ];
       };
     in {
+      # Per-project dev-shell starters: `nix flake init -t <this-repo>#<name>`.
+      # See templates/README.md.
+      templates.node-python = {
+        path = ./templates/node-python;
+        description = "Node 22 + pnpm, Python 3 + uv dev shell";
+      };
+
       nixosConfigurations = {
         home-pc = mkHost "home-pc";
 
