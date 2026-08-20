@@ -1,5 +1,27 @@
-{ pkgs, osConfig, ... }: {
+{ pkgs, osConfig, ... }:
+let
+  # Helix isn't a pager (no stdin support), so route diffs through a wrapper
+  # that drops ANSI colour, spools to a temp .diff file, and opens it in hx.
+  hx-diff-pager = pkgs.writeShellScriptBin "hx-diff-pager" ''
+    tmp=$(mktemp --suffix=.diff)
+    trap 'rm -f "$tmp"' EXIT
+    sed 's/\x1b\[[0-9;]*m//g' > "$tmp"
+    [ -s "$tmp" ] && ${pkgs.helix}/bin/hx "$tmp"
+  '';
+in {
   imports = [ ./helix.nix ];
+
+  programs.git = {
+    enable = true;
+    userName = "nathanbodie";
+    userEmail = "nathanbodie@gmail.com";
+    settings = {
+      # Read `git diff` / `git show` through Helix; leave `git log` on the
+      # default pager so plain log output stays in less.
+      pager.diff = "${hx-diff-pager}/bin/hx-diff-pager";
+      pager.show = "${hx-diff-pager}/bin/hx-diff-pager";
+    };
+  };
 
   programs.zsh = {
     enable = true;
@@ -15,6 +37,8 @@
       pn        = "pnpm";
       neofetch  = "fastfetch";
       nrs       = "nixos-rebuild switch --flake .#${osConfig.networking.hostName}";
+      # Read a GitHub PR diff in Helix via the same wrapper `git diff` uses.
+      prd       = "gh pr diff --color=always | ${hx-diff-pager}/bin/hx-diff-pager";
     };
     sessionVariables = {
       EDITOR = "hx";
@@ -25,6 +49,21 @@
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
+  };
+
+  # GitHub CLI + gh-dash extension (TUI PR/issue dashboard, vim keybinds).
+  # Read PR diffs with `gh pr diff` (see the `prd` alias); comment/approve with
+  # `gh pr review` / `gh pr comment`. Run `gh auth login` once to authenticate.
+  programs.gh = {
+    enable = true;
+    extensions = [ pkgs.gh-dash ];
+  };
+
+  # Render lazygit's diffs through delta (word-level / side-by-side). This is
+  # scoped to lazygit only and does not touch the `git diff` -> Helix pager above.
+  programs.lazygit.settings.git.paging = {
+    colorArg = "always";
+    pager = "${pkgs.delta}/bin/delta --paging=never";
   };
 
   # direnv + nix-direnv: auto-load a repo's flake devShell on cd.
@@ -80,6 +119,7 @@
     btop
     pandoc
     lazygit
+    delta
     claude-code
   ];
 }

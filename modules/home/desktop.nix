@@ -48,7 +48,7 @@
   programs.ghostty = {
     enable = true;
     settings = {
-      font-size      = 24;
+      font-size      = 18;
       window-padding-x = 8;
       maximize       = true;
       font-family    = "JetBrainsMonoNL Nerd Font Mono";
