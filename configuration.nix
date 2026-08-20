@@ -155,6 +155,7 @@
     joystickwake
     lact
     wl-clipboard
+    unzip
   ];
 
   environment.etc."share/applications/steam.desktop" = {
