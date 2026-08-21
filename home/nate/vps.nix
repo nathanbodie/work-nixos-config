@@ -1,5 +1,8 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   imports = [ ../../modules/home/cli-tools.nix ];
+
+  # C-b here so nested tmux over ssh doesn't collide with local C-a prefix.
+  programs.tmux.prefix = lib.mkForce "C-b";
 
   home.username = "nate";
   home.homeDirectory = "/home/nate";
