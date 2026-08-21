@@ -5,18 +5,18 @@
     libreoffice-fresh  # docx / xlsx / pptx / odt / ods / odp
   ];
 
-  # Helix is a terminal editor, so "open a text file" from a file manager needs
+  # nvim is a terminal editor, so "open a text file" from a file manager needs
   # a desktop entry that launches it inside a terminal. This writes
-  # ~/.local/share/applications/helix.desktop (id: helix.desktop) which the
+  # ~/.local/share/applications/nvim.desktop (id: nvim.desktop) which the
   # mimeApps map below points text/* at. Ghostty is our terminal (see
   # desktop.nix); `-e` runs the given command in it.
-  xdg.desktopEntries.helix = {
-    name = "Helix";
+  xdg.desktopEntries.nvim = {
+    name = "Neovim";
     genericName = "Text Editor";
-    comment = "Edit text files in Helix";
-    exec = "ghostty -e hx %F";
+    comment = "Edit text files in Neovim";
+    exec = "ghostty -e nvim %F";
     terminal = false;              # ghostty *is* the terminal
-    icon = "helix";
+    icon = "nvim";
     categories = [ "Utility" "TextEditor" ];
     mimeType = [ "text/plain" ];
   };
@@ -62,13 +62,13 @@
       "image/avif"                      = "imv.desktop";
       "image/jxl"                       = "imv.desktop";
 
-      # ── Plain text / config / code -> Helix (in a terminal) ──
-      "text/plain"                      = "helix.desktop";
-      "text/markdown"                   = "helix.desktop";
-      "text/x-shellscript"             = "helix.desktop";
-      "application/json"                = "helix.desktop";
-      "application/xml"                 = "helix.desktop";
-      "text/xml"                        = "helix.desktop";
+      # ── Plain text / config / code -> nvim (in a terminal) ──
+      "text/plain"                      = "nvim.desktop";
+      "text/markdown"                   = "nvim.desktop";
+      "text/x-shellscript"             = "nvim.desktop";
+      "application/json"                = "nvim.desktop";
+      "application/xml"                 = "nvim.desktop";
+      "text/xml"                        = "nvim.desktop";
 
       # ── LibreOffice: word processing -> Writer ──
       "application/msword"                                                        = "writer.desktop";

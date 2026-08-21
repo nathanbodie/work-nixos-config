@@ -1,25 +1,23 @@
 { pkgs, osConfig, ... }:
 let
-  # Helix isn't a pager (no stdin support), so route diffs through a wrapper
-  # that drops ANSI colour, spools to a temp .diff file, and opens it in hx.
-  hx-diff-pager = pkgs.writeShellScriptBin "hx-diff-pager" ''
+  # Route diffs through a wrapper that drops ANSI colour, spools to a temp .diff
+  # file (so filetype detection kicks in), and opens it in nvim read-only.
+  nvim-diff-pager = pkgs.writeShellScriptBin "nvim-diff-pager" ''
     tmp=$(mktemp --suffix=.diff)
     trap 'rm -f "$tmp"' EXIT
     sed 's/\x1b\[[0-9;]*m//g' > "$tmp"
-    [ -s "$tmp" ] && ${pkgs.helix}/bin/hx "$tmp"
+    [ -s "$tmp" ] && ${pkgs.neovim}/bin/nvim -R "$tmp"
   '';
 in {
-  imports = [ ./helix.nix ];
-
   programs.git = {
     enable = true;
     userName = "nathanbodie";
     userEmail = "nathanbodie@gmail.com";
     settings = {
-      # Read `git diff` / `git show` through Helix; leave `git log` on the
+      # Read `git diff` / `git show` through nvim; leave `git log` on the
       # default pager so plain log output stays in less.
-      pager.diff = "${hx-diff-pager}/bin/hx-diff-pager";
-      pager.show = "${hx-diff-pager}/bin/hx-diff-pager";
+      pager.diff = "${nvim-diff-pager}/bin/nvim-diff-pager";
+      pager.show = "${nvim-diff-pager}/bin/nvim-diff-pager";
     };
   };
 
@@ -37,11 +35,11 @@ in {
       pn        = "pnpm";
       neofetch  = "fastfetch";
       nrs       = "nixos-rebuild switch --flake .#${osConfig.networking.hostName}";
-      # Read a GitHub PR diff in Helix via the same wrapper `git diff` uses.
-      prd       = "gh pr diff --color=always | ${hx-diff-pager}/bin/hx-diff-pager";
+      # Read a GitHub PR diff in nvim via the same wrapper `git diff` uses.
+      prd       = "gh pr diff --color=always | ${nvim-diff-pager}/bin/nvim-diff-pager";
     };
     sessionVariables = {
-      EDITOR = "hx";
+      EDITOR = "nvim";
       MANPAGER = "nvim +Man!";
     };
   };
@@ -60,7 +58,7 @@ in {
   };
 
   # Render lazygit's diffs through delta (word-level / side-by-side). This is
-  # scoped to lazygit only and does not touch the `git diff` -> Helix pager above.
+  # scoped to lazygit only and does not touch the `git diff` -> nvim pager above.
   programs.lazygit.settings.git.paging = {
     colorArg = "always";
     pager = "${pkgs.delta}/bin/delta --paging=never";
